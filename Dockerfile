@@ -24,7 +24,5 @@ COPY --from=builder /home/node/app/build ./build
 
 EXPOSE 3000
 
-RUN yarn run payload migrate:create
-RUN yarn run payload migrate 
 
-CMD ["node", "dist/server.js"]
+# CMD ["node", "dist/server.js"]
