@@ -10,6 +10,9 @@ app.get('/', (_, res) => {
 })
 
 const start = async () => {
+
+  console.log("Database ", process.env.DATABASE_URI);
+  
   // Initialize Payload
   await payload.init({
     secret: process.env.PAYLOAD_SECRET,
