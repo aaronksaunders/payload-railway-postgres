@@ -14,6 +14,10 @@ FROM base as runtime
 ENV NODE_ENV=production
 ENV PAYLOAD_CONFIG_PATH=dist/payload.config.js
 
+# Add your additional yarn scripts here
+RUN yarn run payload migrate:create
+RUN yarn run payload migrate 
+
 WORKDIR /home/node/app
 COPY package*.json  ./
 
