@@ -24,12 +24,11 @@ COPY --from=builder /home/node/app/build ./build
 
 EXPOSE 3000
 
-# CMD ["node", "dist/server.js"]
-
 
 # Copy the start.sh script and make it executable
 COPY start.sh /home/node/app/
 RUN chmod +x /home/node/app/start.sh
 
-# Use the start.sh script as the entry point
-ENTRYPOINT ["/home/node/app/start.sh"]
+RUN /home/node/app/start.sh
+
+CMD ["node", "dist/server.js"]
