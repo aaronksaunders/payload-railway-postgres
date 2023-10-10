@@ -17,6 +17,22 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"lock_until" timestamp(3) with time zone
 );
 
+CREATE TABLE IF NOT EXISTS "customers" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title" varchar,
+	"first_name" varchar,
+	"last_name" varchar,
+	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+	"email" varchar NOT NULL,
+	"reset_password_token" varchar,
+	"reset_password_expiration" timestamp(3) with time zone,
+	"salt" varchar,
+	"hash" varchar,
+	"login_attempts" numeric,
+	"lock_until" timestamp(3) with time zone
+);
+
 CREATE TABLE IF NOT EXISTS "payload_preferences" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"key" varchar,
@@ -30,7 +46,8 @@ CREATE TABLE IF NOT EXISTS "payload_preferences_rels" (
 	"order" integer,
 	"parent_id" integer NOT NULL,
 	"path" varchar NOT NULL,
-	"users_id" integer
+	"users_id" integer,
+	"customers_id" integer
 );
 
 CREATE TABLE IF NOT EXISTS "payload_migrations" (
@@ -42,6 +59,7 @@ CREATE TABLE IF NOT EXISTS "payload_migrations" (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS "email_idx" ON "users" ("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "email_idx" ON "customers" ("email");
 CREATE INDEX IF NOT EXISTS "order_idx" ON "payload_preferences_rels" ("order");
 CREATE INDEX IF NOT EXISTS "parent_idx" ON "payload_preferences_rels" ("parent_id");
 CREATE INDEX IF NOT EXISTS "path_idx" ON "payload_preferences_rels" ("path");
@@ -56,6 +74,12 @@ DO $$ BEGIN
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
+
+DO $$ BEGIN
+ ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_customers_id_customers_id_fk" FOREIGN KEY ("customers_id") REFERENCES "customers"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
 `);
 
 };
@@ -64,6 +88,7 @@ export async function down({ payload }: MigrateDownArgs): Promise<void> {
 await payload.db.drizzle.execute(sql`
 
 DROP TABLE "users";
+DROP TABLE "customers";
 DROP TABLE "payload_preferences";
 DROP TABLE "payload_preferences_rels";
 DROP TABLE "payload_migrations";`);
